@@ -12,4 +12,6 @@ public interface EmployeeService {
 
     public List<Employee> getEmployeeWithDept();
     public void saveEmployee(Employee emp);
+    public Employee getEmployeeById(Integer id);
+    public void updateEmployee(Employee emp);
 }

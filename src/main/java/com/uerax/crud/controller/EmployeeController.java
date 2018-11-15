@@ -41,4 +41,17 @@ public class EmployeeController {
         employeeService.saveEmployee(employee);
         return "success";
     }
+
+    @RequestMapping(value="emp/{id}", method = RequestMethod.GET)
+    public @ResponseBody Employee getEmp(@PathVariable("id") Integer id) {
+        Employee emp = employeeService.getEmployeeById(id);
+        return emp;
+    }
+
+    @RequestMapping(value="/emps/{empId}", method = RequestMethod.POST)
+    public @ResponseBody String updateEmp(Employee employee) {
+        System.out.println(employee);
+        employeeService.updateEmployee(employee);
+        return "success";
+    }
 }

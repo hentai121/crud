@@ -30,4 +30,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void saveEmployee(Employee emp) {
         employeeMapper.insertSelective(emp);
     }
+
+    @Override
+    public Employee getEmployeeById(Integer id) {
+        return employeeMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public void updateEmployee(Employee emp) {
+        employeeMapper.updateByPrimaryKeySelective(emp);
+    }
 }

@@ -17,7 +17,7 @@
 
 </head>
 <body>
-<!-- 员工模态框 -->
+<!-- 员工添加模态框 -->
 <div class="modal fade" id="empAddModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -54,6 +54,49 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                 <button type="button" class="btn btn-primary" id="emp_add_save_btn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<%--员工修改模态框--%>
+<div class="modal fade" id="empUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">员工修改</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="update-form-horizontal">
+                    <div class="form-group">
+                        <label for="emp_name" class="col-sm-2 control-label">员工姓名</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="empName" class="form-control" id="emp_update_name"
+                                   placeholder="empName">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp_age" class="col-sm-2 control-label">员工年龄</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="empAge" class="form-control" id="emp_update_age"
+                                   placeholder="empAge">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">员工部门</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="deptId" id="dept_update_select">
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_update_save_btn">修改</button>
             </div>
         </div>
     </div>
@@ -125,8 +168,10 @@
             var empNameTd = $("<td></td>").append(item.empName);
             var empAgeTd = $("<td></td>").append(item.empAge);
             var deptNameTd = $("<td></td>").append(item.department.deptName);
-            var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm").append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append(" 添加");
+            var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm emp-update-btn").append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append(" 修改");
+            editBtn.attr("update_emp_id", item.empId);
             var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm").append($("<span></span>").addClass("glyphicon glyphicon-calendar")).append(" 删除");
+            delBtn.attr("delete_emp_id", item.empId);
             var edit = $("<td></td>").append(editBtn).append(" ").append(delBtn);
             $("<tr></tr>").append(empIdTd).append(empNameTd).append(empAgeTd).append(deptNameTd).append(edit).appendTo("#emp_table tbody");
         });
@@ -183,26 +228,26 @@
 <script>
     // 添加员工按钮
     $("#add_emp_btn").click(function () {
-
+        $("#form-horizontal input").val("");
         $("#dept_select").empty();
-        getDept();
+        getDept("#dept_select");
 
         $("#empAddModal").modal({
             backdrop: "static"
         });
-        
+
     });
 
-    function validate_add_form() {
-        var empName = $("#emp_name").val();
+    function validate_add_form(ele_1, ele_2) {
+        var empName = $(ele_1).val();
         var regName = /^[a-zA-Z0-9_-]{4,16}$/;
-        show_vaild_msg("#emp_name", regName.test(empName), "非法名字")
-        var empAge = $("#emp_age").val();
+        show_vaild_msg(ele_1, regName.test(empName), "非法名字")
+        var empAge = $(ele_2).val();
         var regAge = /^(?:[1-9]?\d|100)$/;
-        show_vaild_msg("#emp_age", regAge.test(empAge), "非法年龄")
+        show_vaild_msg(ele_2, regAge.test(empAge), "非法年龄")
         return true;
     }
-    
+
     function show_vaild_msg(ele, status, msg) {
         // 清除当前元素
         $(ele).parent().removeClass("has-success has-error");
@@ -211,7 +256,7 @@
             $(ele).parent().addClass("has-success");
             $(ele).next("span").text("");
             return false;
-        } else if(!status) {
+        } else if (!status) {
             $(ele).parent().addClass("has-error");
             $(ele).next("span").text(msg);
         }
@@ -220,9 +265,9 @@
     // 添加员工模态栏保存按钮
     $("#emp_add_save_btn").click(function () {
 
-        if (!validate_add_form()) {
+        if (!validate_add_form("#emp_name", "#emp_age")) {
             return false;
-        };
+        }
 
         $.ajax({
             url: "${APP_PATH}/emp",
@@ -237,9 +282,9 @@
     });
 
     // 获取部门列表
-    function getDept() {
+    function getDept(ele) {
 
-        $("dept_select").empty();
+        $(ele).empty();
 
         $.ajax({
             url: "${APP_PATH}/getDept",
@@ -247,14 +292,58 @@
             success: function (result) {
                 $.each(result, function () {
                     var optionEle = $("<option></option>").append(this.deptName).attr("value", this.deptId);
-                    optionEle.appendTo("#dept_select");
+                    optionEle.appendTo(ele);
                 });
             }
 
         });
     }
 
+</script>
+<%--修改用户 script--%>
+<script>
+    $(document).on("click", ".emp-update-btn", function () {
 
+        $("#dept_update_select").empty();
+        getDept("#dept_update_select");
+        getEmp($(this).attr("update_emp_id"));
+        $("#emp_update_save_btn").attr("update_emp_id", $(this).attr("update_emp_id"));
+        $("#empUpdateModal").modal({
+            backdrop: "static"
+        });
+    });
+
+    function getEmp(id) {
+        $.ajax({
+            url: "${APP_PATH}/emp/" + id,
+            type: "GET",
+            success: function (result) {
+                console.log(result);
+                $("#emp_update_name").val(result.empName);
+                $("#emp_update_age").val(result.empAge);
+                $("#dept_update_select").val([result.deptId]);
+            }
+        });
+    }
+
+    $("#emp_update_save_btn").click(function () {
+
+        if (!validate_add_form("#emp_update_name", "#emp_update_age")) {
+            return false;
+        }
+
+        $.ajax({
+            url: "${APP_PATH}/emps/" + $(this).attr("update_emp_id"),
+            type: "POST",
+            data: $("#update-form-horizontal").serialize(),
+            success: function (result) {
+                alert(result);
+                $("#empUpdateModal").modal('hide');
+                to_page(totalPage);
+            }
+        });
+
+    });
 </script>
 </body>
 </html>
