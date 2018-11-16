@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,23 +36,41 @@ public class EmployeeController {
         return "list";
     }
 
-    @RequestMapping(value="/emp", method = RequestMethod.POST)
+    @RequestMapping(value = "/emp", method = RequestMethod.POST)
     @ResponseBody
     public String saveEmp(Employee employee) {
         employeeService.saveEmployee(employee);
         return "success";
     }
 
-    @RequestMapping(value="emp/{id}", method = RequestMethod.GET)
-    public @ResponseBody Employee getEmp(@PathVariable("id") Integer id) {
+    @RequestMapping(value = "emp/{id}", method = RequestMethod.GET)
+    public @ResponseBody
+    Employee getEmp(@PathVariable("id") Integer id) {
         Employee emp = employeeService.getEmployeeById(id);
         return emp;
     }
 
-    @RequestMapping(value="/emps/{empId}", method = RequestMethod.POST)
-    public @ResponseBody String updateEmp(Employee employee) {
+    @RequestMapping(value = "/emp/{empId}", method = RequestMethod.PUT)
+    public @ResponseBody
+    String updateEmp(Employee employee) {
         System.out.println(employee);
         employeeService.updateEmployee(employee);
         return "success";
+    }
+
+    @RequestMapping(value = "/emp/{ids}", method = RequestMethod.DELETE)
+    public @ResponseBody String delEmp(@PathVariable("ids") String ids) {
+        List<Integer> list = new ArrayList<>();
+        if (ids.contains("-")) {
+            String[] str = ids.split("-");
+            System.out.println(str);
+            for (String id : str) {
+                list.add(Integer.parseInt(id));
+            }
+            employeeService.deleteBatch(list);
+        } else {
+            employeeService.deleteEmployee(Integer.parseInt(ids));
+        }
+        return "delete success";
     }
 }

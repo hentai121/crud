@@ -226,4 +226,10 @@
       dept_id = #{deptId,jdbcType=INTEGER}
     where emp_id = #{empId,jdbcType=INTEGER}
   </update>
+  <delete id="batchDeletes" parameterType="java.util.List">
+    delete from employee where empId IN
+    <foreach collection="list"  item="id" open="(" separator=","  close =")">
+      ${id}
+    </foreach>
+  </delete>
 </mapper>

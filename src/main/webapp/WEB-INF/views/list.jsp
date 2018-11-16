@@ -111,7 +111,7 @@
     <div class="row">
         <div class="col-md-offset-8">
             <button class="btn btn-primary btn-sm" id="add_emp_btn">添加</button>
-            <button class="btn btn-warning btn-sm">删除</button>
+            <button class="btn btn-warning btn-sm" id="delete_checked_btn">删除</button>
         </div>
     </div>
     <div class="row">
@@ -119,6 +119,9 @@
             <table class="table table-hover" id="emp_table">
                 <thead>
                 <tr>
+                    <th>
+                        <input type="checkbox" id="check_all"/>
+                    </th>
                     <th>#</th>
                     <th>员工姓名</th>
                     <th>员工年龄</th>
@@ -164,16 +167,17 @@
         $("#emp_table tbody").empty();
         var emps = result.list;
         $.each(emps, function (index, item) {
+            var checkTd = $("<td><input type='checkbox' class='check_id'/></td>");
             var empIdTd = $("<td></td>").append(item.empId);
             var empNameTd = $("<td></td>").append(item.empName);
             var empAgeTd = $("<td></td>").append(item.empAge);
             var deptNameTd = $("<td></td>").append(item.department.deptName);
             var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm emp-update-btn").append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append(" 修改");
             editBtn.attr("update_emp_id", item.empId);
-            var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm").append($("<span></span>").addClass("glyphicon glyphicon-calendar")).append(" 删除");
+            var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm emp-delete-btn").append($("<span></span>").addClass("glyphicon glyphicon-calendar")).append(" 删除");
             delBtn.attr("delete_emp_id", item.empId);
             var edit = $("<td></td>").append(editBtn).append(" ").append(delBtn);
-            $("<tr></tr>").append(empIdTd).append(empNameTd).append(empAgeTd).append(deptNameTd).append(edit).appendTo("#emp_table tbody");
+            $("<tr></tr>").append(checkTd).append(empIdTd).append(empNameTd).append(empAgeTd).append(deptNameTd).append(edit).appendTo("#emp_table tbody");
         });
     }
 
@@ -300,7 +304,7 @@
     }
 
 </script>
-<%--修改用户 script--%>
+<%--修改用户--%>
 <script>
     $(document).on("click", ".emp-update-btn", function () {
 
@@ -333,16 +337,64 @@
         }
 
         $.ajax({
-            url: "${APP_PATH}/emps/" + $(this).attr("update_emp_id"),
-            type: "POST",
+            url: "${APP_PATH}/emp/" + $(this).attr("update_emp_id"),
+            type: "PUT",
             data: $("#update-form-horizontal").serialize(),
             success: function (result) {
                 alert(result);
                 $("#empUpdateModal").modal('hide');
-                to_page(totalPage);
+                to_page(1);
             }
         });
 
+    });
+</script>
+<%--删除用户--%>
+<script>
+
+    $(document).on("click", ".emp-delete-btn", function () {
+        if (confirm("是否删除？")) {
+            $.ajax({
+                url: "${APP_PATH}/emp/" + $(this).attr("delete_emp_id"),
+                type: "DELETE",
+                success: function (result) {
+                    alert("succesee");
+                    to_page(1);
+                }
+            });
+        }
+    });
+
+</script>
+<%--选择用户--%>
+<script>
+
+
+    $("#check_all").click(function () {
+
+
+        $(".check_id").prop("checked", $(this).prop("checked"));
+
+    });
+
+    $("#delete_checked_btn").click(function () {
+
+        var del_id_str = "";
+        $.each($(".check_id:checked"), function () {
+            del_id_str += $(this).parents("tr").find("td:eq(1)").text() + "-";
+        })
+        del_id_str = del_id_str.substring(0, del_id_str.length - 1);
+        console.log(del_id_str);
+        if (confirm("是否全部删除")) {
+            $.ajax({
+                url: "${APP_PATH}/emp/" + del_id_str,
+                type: "DELETE",
+                success: function (result) {
+                    alert(result);
+                    to_page(1);
+                }
+            });
+        }
     });
 </script>
 </body>

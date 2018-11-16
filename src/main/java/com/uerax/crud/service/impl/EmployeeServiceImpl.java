@@ -40,4 +40,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void updateEmployee(Employee emp) {
         employeeMapper.updateByPrimaryKeySelective(emp);
     }
+
+    @Override
+    public void deleteEmployee(Integer id) {
+        employeeMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public void deleteBatch(List<Integer> list) {
+        employeeMapper.batchDeletes(list);
+    }
 }
