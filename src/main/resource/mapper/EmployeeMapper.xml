@@ -227,7 +227,7 @@
     where emp_id = #{empId,jdbcType=INTEGER}
   </update>
   <delete id="batchDeletes" parameterType="java.util.List">
-    delete from employee where empId IN
+    delete from employee where emp_id IN
     <foreach collection="list"  item="id" open="(" separator=","  close =")">
       ${id}
     </foreach>

@@ -67,6 +67,7 @@ public class EmployeeController {
             for (String id : str) {
                 list.add(Integer.parseInt(id));
             }
+            System.out.println(list);
             employeeService.deleteBatch(list);
         } else {
             employeeService.deleteEmployee(Integer.parseInt(ids));
